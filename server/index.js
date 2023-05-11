@@ -19,7 +19,7 @@ mongoose.connect(process.env.DATABASE,{
 .catch((err) => console.log("DB connection error =>",err));
 
 // middlewares
-app.use(express.json({ limit: "5mb" }));// it will help to recive the data from client side to server
+app.use(express.json({ limit: "5mb" }));// it will help to recive the data from client side to server in json format
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
     origin: ["http://localhost:3000"],
@@ -27,6 +27,14 @@ app.use(cors({
 
 // autoload Routes
 readdirSync('./routes').map((r) => app.use('/api',require(`./routes/${r}`)));
+
+app.use((err, req, res, next) => {
+    if (err.name === "UnauthorizedError") {
+      console.log(err); // log the error object
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    next();
+  });
 
 
 //Listen

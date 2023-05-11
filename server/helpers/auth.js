@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-// we can write the function to hash password
+//  function to hash password
 export const hashPassword = (password) => {
     return new Promise((resolve,reject) =>{ // it will either success or failure
         bcrypt.genSalt(12, (err, salt) =>{
@@ -18,6 +18,6 @@ export const hashPassword = (password) => {
 };
 
 // when user wants to login then compare the password
-export const comparePassword = (password, hashed) =>{
-    return bcrypt.compare(password,hashed);     // true/false
+export const comparePassword = async (password, hashed) =>{
+    return await bcrypt.compare(password,hashed);     // true/false
 };

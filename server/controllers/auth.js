@@ -4,17 +4,14 @@ import jwt from 'jsonwebtoken';
 
 // for register
 export const register = async (req,res) =>{
-    // console.log("REGISTER ENDPOINT =>",req.body);
     const {name, email, password, secret} = req.body;
     // validation
     if(!name) return res.status(400).send('Name is Required');
-    if(!password || password.length < 6) return res.status(400).send('Password is required and should be 6 charectors long');
+    if(!password || password.length < 6) return res.status(400).send('Password should be 6 charectors long');
     if(!secret) return res.status(400).send('Answer is Required');
     // check if user already exist
     const exist = await User.findOne({email});
-    if(exist){
-        return res.status(400).send("Email already exist");
-    }
+    if(exist) return res.status(400).send("Email already exist"); // send msg if email already exist
 
     // hashed
     const hash = await hashPassword(password);
@@ -41,7 +38,7 @@ export const login = async (req,res) =>{
 
         //check password
         const match = await comparePassword(password, user.password);
-        if(!match) res.status(400).send("Incorrect Password");
+        if(!match) return res.status(400).send("Incorrect Password");
         
         // create a jwt token
         const token = jwt.sign({_id: user._id},process.env.JWT_SECRET, {expiresIn: "7d"}); // to create sign token
@@ -61,3 +58,16 @@ export const login = async (req,res) =>{
     }
 };
 
+// this is to check if the user is authorised enoughf to access the protected page
+export const currentUser = async (req,res) =>{
+    // console.log(req.auth._id);
+    try{
+        const user = await User.findById(req.auth._id);
+        // res.json(user);
+        res.json({ok:true});
+    }catch(err){
+        console.log("Error in CurrentUser=>",err);
+        res.sendStatus(400);
+    }
+
+}

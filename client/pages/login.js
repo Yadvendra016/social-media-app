@@ -37,10 +37,18 @@ const Login = () => {
       window.localStorage.setItem('auth',JSON.stringify(data));
       router.push("/");
     } catch (err) {
-      toast.error(err.response.data);
+      if (err.response && err.response.data) {
+        // Check if err.response exists and has data property
+        toast.error(err.response.data);
+      } else {
+        // Handle the error if err.response or err.response.data is undefined
+        toast.error("An error occurred");
+      }
       setLoading(false);
     }
   };
+  // this is for if we user login so he can not access the login page by writing /login on url
+  if(state && state.token) router.push("/") // if user trying to access then it redirect to home page
 
   return (
     <div className="container-fluid">
