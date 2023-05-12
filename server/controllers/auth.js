@@ -1,6 +1,7 @@
 import User from "../models/user";
 import {  comparePassword, hashPassword } from "../helpers/auth";
 import jwt from 'jsonwebtoken';
+import user from "../models/user";
 
 // for register
 export const register = async (req,res) =>{
@@ -71,3 +72,40 @@ export const currentUser = async (req,res) =>{
     }
 
 }
+
+// for forgot password
+export const forgotPassword = async(req,res) =>{
+    console.log(req.body);
+    const {email, newPassword, secret} = req.body;
+    //validation
+    if(!newPassword || !newPassword < 6){
+        return res.json({
+            error: "new Password is required and should be minimum 6 charector long"
+        })
+    }
+    if(!secret){
+        return res.json({
+            error: "Secret is required"
+        })
+    }
+    const user = await user.findOne({email,secret});
+    if(!user){
+        res.json({
+            error: "We can't verify you with those details"
+        })
+    }
+
+    try {
+        // remove old password and add new one
+        const hashed = await hashPassword(newPassword);
+        await User.findByIdAndUpdate(user._id,{password: hashed});
+        return res.json({
+            success: "Congrats now you can login with your new Passwrd"
+        })
+    } catch (error) {
+        console.log("Error while forgotPassword =>",error);
+        return res.json({
+            error:"Sometjing went wrong, Try again"
+        })
+    }
+};
