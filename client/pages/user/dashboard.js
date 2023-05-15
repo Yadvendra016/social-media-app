@@ -28,6 +28,8 @@ const Home = () => {
           toast.error(data.error);
         }else{
           toast.success("Post created");
+          setContent("");
+          setImage({});
         }
     } catch (error) {
         console.log("Error from dashboard =>",error);
@@ -41,14 +43,15 @@ const Home = () => {
     let formData = new FormData();
     formData.append('image', file);
     // console.log([...formData]);
-    setImage({
-      url: data.url,
-      public_id: data.public_id
-    })
+    
     setUploading(true);
     try {
       const {data} = await axios.post('/upload-image', formData);
       // console.log(data);
+      setImage({
+        url: data.url,
+        public_id: data.public_id
+      })
       setUploading(false);
     } catch (error) {
       console.log("Error while upload image => ",error);

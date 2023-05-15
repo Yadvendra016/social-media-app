@@ -32,9 +32,9 @@ export const uploadImage = async (req,res) =>{
     // console.log(req.files);
     try {
         const result = await cloudinary.uploader.upload(req.files.image.path);
-        console.log(result);
+        // console.log(result);
         res.json({
-            url: result.secure.url, // https url
+            url: result.secure_url, // https url
             public_id: result.public_id
         })
     } catch (error) {
