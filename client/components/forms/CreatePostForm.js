@@ -6,6 +6,7 @@ import "react-quill/dist/quill.snow.css";
 import { CameraOutlined, LoadingOutlined } from '@ant-design/icons'
 
 
+
 const CreatePostForm = ({ content, setContent, postSubmit, handleImage, uploading, image }) => {
   return (
     <div className="card">

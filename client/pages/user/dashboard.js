@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState,useEffect } from "react";
 import { UserContext } from "../../context";
 import UserRoute from "../../components/routes/UserRoute";
 // import CreatePostForm from "../../components/forms/CreatePostForm";
@@ -6,15 +6,32 @@ import CreatePostForm from "../../components/forms/CreatePostForm";
 import { useRouter } from "next/router";
 import axios from "axios";
 import {toast} from 'react-toastify'
+import PostList from "../../components/cards/PostList";
 
 const Home = () => {
   const [state, setState] = useContext(UserContext);
   //state
   const [content, setContent] = useState("");
   const [image, setImage] = useState({}) // for image
-  const [uploading, setUploading] = useState(false) 
+  const [uploading, setUploading] = useState(false);
+  const [posts, setPosts] = useState([]); // posts
 
   const router = useRouter();
+  // here when the page render then the post in render
+  useEffect(() =>{
+    if(state && state.token) fetchUserPost();
+  },[state && state.token])
+
+  // this function make a request to backend to fetch all the post of the user
+  const fetchUserPost = async () =>{
+    try {
+      const {data} = await axios.get("/user-posts");
+      // console.log("User post =>",data);
+      setPosts(data);
+    } catch (error) {
+      console.log("ERROR while post-fetching Client => ", error);
+    }
+  }
 
   const postSubmit = async(e) => {
     e.preventDefault();
@@ -78,6 +95,10 @@ const Home = () => {
               uploading={uploading}
               image={image}
             />
+            <br />
+            {/* pre tag to read json data nicely */}
+            {/* <pre>{JSON.stringify(post, null, 4)}</pre> */}
+            <PostList posts={posts}/>
           </div>
           <div className="col-md-4">sideBar</div>
         </div>
