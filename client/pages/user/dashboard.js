@@ -44,6 +44,9 @@ const Home = () => {
         if(data.error){
           toast.error(data.error);
         }else{
+          //while submit the post we can use fetchPost so that post shows without refreshing
+          fetchUserPost();
+
           toast.success("Post created");
           setContent("");
           setImage({});
@@ -74,6 +77,21 @@ const Home = () => {
       console.log("Error while upload image => ",error);
       setUploading(false)
     }
+  };
+
+  // handle DETLETe post
+  const handleDelete = async (post) =>{
+    try {
+      const answer = window.confirm("Are you sure?");
+      if(!answer) return;
+      const {data} = await axios.delete(`/delete-post/${post._id}`);
+      toast.error("Post Deleted");
+
+      fetchUserPost();
+
+    } catch (error) {
+      console.log("Error while Delete image => ",error);
+    }
   }
 
   return (
@@ -98,7 +116,7 @@ const Home = () => {
             <br />
             {/* pre tag to read json data nicely */}
             {/* <pre>{JSON.stringify(post, null, 4)}</pre> */}
-            <PostList posts={posts}/>
+            <PostList posts={posts} handleDelete={handleDelete}/>
           </div>
           <div className="col-md-4">sideBar</div>
         </div>

@@ -1,5 +1,6 @@
 import Post from "../models/posts";
 import cloudinary from "cloudinary";
+
 //config cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -54,3 +55,43 @@ export const postByUser = async (req, res) => {
     console.log("ERROR while post-rendring SERVER => ", error);
   }
 };
+
+//post-edit
+export const userPost = async (req,res) =>{
+  try {
+    const post = await Post.findById(req.params._id);
+    res.json(post);
+  } catch (error) {
+    console.log("Error while UserPost edit server =>",error);
+  }
+}
+
+
+//update post
+export const updatePost = async (req,res) =>{
+  // console.log("Post update", req.body);
+  try {
+    const post = await Post.findByIdAndUpdate(req.params._id, req.body, {
+      new: true,
+    });
+    res.json(post);
+  } catch (error) {
+    console.log("Error while update post server =>",error);
+    
+  }
+};
+
+//delete Post
+export const deletePost = async (req,res)=>{
+  try {
+    const post = await Post.findByIdAndDelete(req.params._id);
+    // remove the image from cloudinary
+    if(post.image && post.image.public_id){
+      const image = await cloudinary.uploader.destroy(post.image.public_id);
+    }
+    res.json({ok: true});
+
+  } catch (error) {
+    console.log("Error while Detlet post server =>",error);
+  }
+}

@@ -13,10 +13,12 @@ import {
 import { useContext } from "react";
 import { UserContext } from "../../context";
 
-const PostList = ({ posts }) => {
+const PostList = ({ posts, handleDelete }) => {
   const [state, setState] = useContext(UserContext);
 
   const router = useRouter();
+
+ 
 
   return (
     <>
@@ -25,10 +27,8 @@ const PostList = ({ posts }) => {
           <div key={post._id} className="card mb-5">
             <div className="card-header">
               <Avatar size={40}>{post.postedBy.name[0]} </Avatar>{" "}
-              <span className="pt-2 ml-3" style={{ marginLeft: "1rem" }}>
-                {post.postedBy.name}
-              </span>
-              <span className="pt-2 ml-3" style={{ marginLeft: "1rem" }}>
+              <span className="pt-2 mx-3">{post.postedBy.name}</span>
+              <span className="pt-2 mx-3">
                 {moment(post.createdAt).fromNow()}
               </span>
             </div>
@@ -49,21 +49,19 @@ const PostList = ({ posts }) => {
               )}
               <div className="d-flex pt-2">
                 <HeartOutlined className="text-danger pt-2 h5 px-2" />
-                <div className="pt-2 pl-3" style={{ marginLeft: "1rem" }}>
-                  3 like
-                </div>
+                <div className="pt-2 ">3 like</div>
                 <CommentOutlined
-                  className="text-danger pt-2 h5 pl-5"
-                  style={{ marginLeft: "1rem" }}
+                  className="text-danger pt-2 h5 px-2"
+                  style={{ marginLeft: "2rem" }}
                 />
-                <div className="pt-2 pl-3">4 comments</div>
+                <div className="pt-2">4 comments</div>
 
                 {state &&
                   state.user &&
                   state.user._id === post.postedBy._id && (
                     <>
-                      <EditOutlined className="text-danger pt-2 h5 px-2 mx-auto" />
-                      <DeleteOutlined className="text-danger pt-2 h5 px-2" />
+                      <EditOutlined onClick={() => router.push(`/user/post/${post._id}`)} className="text-danger pt-2 h5 px-2 mx-auto" />
+                      <DeleteOutlined onClick={() => handleDelete(post)} className="text-danger pt-2 h5 px-2" />
                     </>
                   )}
               </div>
