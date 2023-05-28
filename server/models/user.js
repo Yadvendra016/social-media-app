@@ -27,7 +27,15 @@ const userSchema = new Schema({
     about:{
         // for bio
     },
-    photo: String,
+    username:{
+        type: String,
+        unique: true,
+        require: true,
+    },
+    image: {
+        url: String,
+        public_id: String
+    },
     following:[{type:Schema.ObjectId, ref: 'User'}], // ObjectId should be unique id which we will get when we save anything in mongodb
     followers:[{type:Schema.ObjectId, ref: 'User'}],
 }, {timestamps: true});

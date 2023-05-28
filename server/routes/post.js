@@ -7,7 +7,7 @@ import {createPost, uploadImage, postByUser, userPost, updatePost, deletePost} f
 const router = express.Router();
 
 router.post('/create-post',requireSignIn, createPost );
-router.post('/upload-image', requireSignIn,formidable({maxFileSize: 5*1024*1024}), uploadImage);
+router.post('/upload-image', requireSignIn,canEditDeletePost,formidable({maxFileSize: 5*1024*1024}), uploadImage);
 //posts-rendring
 router.get('/user-posts',requireSignIn, postByUser);
 router.get('/user-post/:_id',requireSignIn, userPost ) // edit post
