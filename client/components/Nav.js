@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Avatar } from "antd";
 
 const Nav = () => {
   const [current, setCurrent] = useState(""); // to store the path name for active links
@@ -26,7 +27,7 @@ const Nav = () => {
       style={{ backgroundColor: "blue" }}
     >
       <Link href="/" className="nav-link text-light logo">
-        SocialBridge
+        <Avatar src={'/images/logo.png'}/> SocialBridge
       </Link>
      
 

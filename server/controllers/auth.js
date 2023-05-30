@@ -144,20 +144,104 @@ export const profileUpdate = async (req, res) => {
     if (req.body.secret) {
       data.secret = req.body.secret;
     }
-    if(req.body.image){
-        data.image = req.body.image
+    if (req.body.image) {
+      data.image = req.body.image;
     }
 
-    let user = await User.findByIdAndUpdate(req.auth._id, data, {new: true});
+    let user = await User.findByIdAndUpdate(req.auth._id, data, { new: true });
     user.password = undefined;
     user.secret = undefined;
 
-    res.json(user)
-
+    res.json(user);
   } catch (error) {
     if (error.code == 1100) {
       return res.json({ error: "Duplicate Username" });
     }
     console.log("Error while profile updating server =>", error);
+  }
+};
+
+// for finding people to follow - get all user
+export const findPeople = async (req, res) => {
+  // get all the user except logedin user and user which already followed
+  try {
+    const user = await User.findById(req.auth._id);
+    //user.following
+    let following = user.following; // following has arrays of user id
+    following.push(user._id);
+
+    //find the people (except user in the following array)
+    const people = await User.find({ _id: { $nin: following } })
+      .select("-password -secret")
+      .limit(10);
+    res.json(people);
+  } catch (error) {
+    console.log("Error in findPeople server =>", error);
+  }
+};
+
+// middeware => when click on follow my id add on that user followers array
+export const addFollower = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.body._id, {
+      $addToSet: { followers: req.auth._id },
+    });
+    next();
+  } catch (error) {
+    console.log("Error whiel addFollower middleware controler =>", error);
+  }
+};
+
+//Follow people -> that user _id add in my following array
+export const userFollow = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $addToSet: { following: req.body._id },
+      },
+      { new: true }
+    ).select("-password -secret");
+    res.json(user);
+  } catch (error) {
+    console.log("Error userFollow controller => ", error);
+  }
+};
+
+//Following page show the all follwoing user
+export const userFollowing = async (req, res) => {
+  try {
+    const user = await User.findById(req.auth._id);
+    const following = await User.find({ _id: user.following }).limit(100);
+    res.json(following);
+  } catch (error) {
+    console.log("error from controller userFollowing", error);
+  }
+};
+
+//meddleware
+export const removeFollower = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.body._id, {
+      $pull: { followers: req.auth._id },
+    });
+    next();
+  } catch (error) {
+    console.log("removeFollower =>", error);
+  }
+};
+
+export const userUnfollow = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $pull: { following: req.body._id },
+      },
+      { new: true }
+    );
+    res.json(user);
+  } catch (error) {
+    console.log("userUnfollow =>", error);
   }
 };

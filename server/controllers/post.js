@@ -1,5 +1,6 @@
 import Post from "../models/posts";
 import cloudinary from "cloudinary";
+import User from "../models/user";
 
 //config cloudinary
 cloudinary.config({
@@ -28,7 +29,7 @@ export const createPost = async (req, res) => {
 };
 
 export const uploadImage = async (req, res) => {
-  // console.log(req.files);
+  // console.log(req.files.image.path);
   try {
     const result = await cloudinary.uploader.upload(req.files.image.path);
     // console.log(result);
@@ -45,30 +46,45 @@ export const uploadImage = async (req, res) => {
 export const postByUser = async (req, res) => {
   try {
     // const posts = await Post.find({ postedBy: req.auth._id })
-    const posts = await Post.find()
+
+    //*** this it to render all post but we want only followed user post */
+
+    /*const posts = await Post.find()
       .populate("postedBy", "_id name image")
       .sort({ createdAt: -1 })
       .limit(10);
     //   console.log(posts);
-    res.json(posts);
+    res.json(posts); */
+
+    const user = await User.findById(req.auth._id);
+    let following = user.following;
+
+    // follwoing array contains all the following users Id(whch we did on auth.js- userFollowing) and also we put our id so that our post is also visible
+    following.push(req.auth._id);
+
+    const posts = await Post.find({ postedBy: { $in: following } })
+    .populate("postedBy", "_id name image")
+    .sort({ createdAt: -1 })
+    .limit(10);
+
+      res.json(posts);
   } catch (error) {
     console.log("ERROR while post-rendring SERVER => ", error);
   }
 };
 
 //post-edit
-export const userPost = async (req,res) =>{
+export const userPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params._id);
     res.json(post);
   } catch (error) {
-    console.log("Error while UserPost edit server =>",error);
+    console.log("Error while UserPost edit server =>", error);
   }
-}
-
+};
 
 //update post
-export const updatePost = async (req,res) =>{
+export const updatePost = async (req, res) => {
   // console.log("Post update", req.body);
   try {
     const post = await Post.findByIdAndUpdate(req.params._id, req.body, {
@@ -76,22 +92,20 @@ export const updatePost = async (req,res) =>{
     });
     res.json(post);
   } catch (error) {
-    console.log("Error while update post server =>",error);
-    
+    console.log("Error while update post server =>", error);
   }
 };
 
 //delete Post
-export const deletePost = async (req,res)=>{
+export const deletePost = async (req, res) => {
   try {
     const post = await Post.findByIdAndDelete(req.params._id);
     // remove the image from cloudinary
-    if(post.image && post.image.public_id){
+    if (post.image && post.image.public_id) {
       const image = await cloudinary.uploader.destroy(post.image.public_id);
     }
-    res.json({ok: true});
-
+    res.json({ ok: true });
   } catch (error) {
-    console.log("Error while Detlet post server =>",error);
+    console.log("Error while Detlet post server =>", error);
   }
-}
+};

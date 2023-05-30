@@ -24,7 +24,7 @@ const PostList = ({ posts, handleDelete }) => {
         posts.map((post) => (
           <div key={post._id} className="card mb-5">
             <div className="card-header">
-              <Avatar size={40}>{post.postedBy.name[0]} </Avatar>{" "}
+              <Avatar size={40}>{post.postedBy.name[0]} </Avatar>
               <span className="pt-2 mx-3">{post.postedBy.name}</span>
               <span className="pt-2 mx-3">
                 {moment(post.createdAt).fromNow()}

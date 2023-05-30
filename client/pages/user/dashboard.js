@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import {toast} from 'react-toastify'
 import PostList from "../../components/cards/PostList";
+import People from "../../components/cards/people";
+import Link from "next/link";
 
 const Home = () => {
   const [state, setState] = useContext(UserContext);
@@ -15,11 +17,15 @@ const Home = () => {
   const [image, setImage] = useState({}) // for image
   const [uploading, setUploading] = useState(false);
   const [posts, setPosts] = useState([]); // posts
+  const [people, setPeople] = useState([]); //people
 
   const router = useRouter();
-  // here when the page render then the post in render
+  // here when the page render then the post in render and (later on) also user to follow
   useEffect(() =>{
-    if(state && state.token) fetchUserPost();
+    if(state && state.token){
+      fetchUserPost(); // to fetch post
+      findPeople();
+    }
   },[state && state.token])
 
   // this function make a request to backend to fetch all the post of the user
@@ -30,6 +36,17 @@ const Home = () => {
       setPosts(data);
     } catch (error) {
       console.log("ERROR while post-fetching Client => ", error);
+    }
+  }
+
+  // this function if for find people and show on the sidebar (as suggestion to follow)
+  const findPeople = async (req,res) =>{ // this function execute in useEffect
+    try {
+      const {data} = await axios.get("/find-people");
+      setPeople(data);
+
+    } catch (error) {
+      console.log("Error while findPeople Client =>",error);
     }
   }
 
@@ -94,6 +111,34 @@ const Home = () => {
     }
   }
 
+  //what hapend when we click on the follow button
+  const handleFollow = async(user) =>{
+    // console.log("add this user to following list", user);
+    try {
+      const {data} = await axios.put('/user-follow',{_id: user._id}); // we send only id
+      
+      //update local Storage --> update user
+      let auth = JSON.parse(localStorage.getItem("auth"));
+      auth.user = data;
+      localStorage.setItem('auth', JSON.stringify(auth));
+
+      //update context
+      setState({...state, user: data});
+
+      //update people state (helps when user follow it will remove from people array)
+      let filtered = people.filter((p) => p._id !== user._id);
+      setPeople(filtered);
+
+      toast.success(`following ${user.name}`);
+      //rerender the post in news feed
+      fetchUserPost();
+
+
+    } catch (error) {
+      console.log("Error while handleFollow in dasboard.js => ",error);
+    }
+  }
+
   return (
     <UserRoute>
       <div className="container-fluid">
@@ -116,9 +161,18 @@ const Home = () => {
             <br />
             {/* pre tag to read json data nicely */}
             {/* <pre>{JSON.stringify(post, null, 4)}</pre> */}
-            <PostList posts={posts} handleDelete={handleDelete}/>
+            <PostList posts={posts} handleDelete={handleDelete} />
           </div>
-          <div className="col-md-4">sideBar</div>
+
+          {/* Sidebar */}
+          <div className="col-md-4">
+            {/* following tag */}
+            {state && state.user && state.user.following && <Link href={`/user/following`} className="h6 text-decoration-none">
+                {state.user.following.length} Following
+            </Link>}
+
+           <People people={people} handleFollow={handleFollow} />
+          </div>
         </div>
       </div>
     </UserRoute>

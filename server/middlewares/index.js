@@ -13,6 +13,9 @@ export const canEditDeletePost = async (req,res, next) =>{
     try {
         const post = await Post.findById(req.params._id);
         // console.log("POST IN UPDATE DELETE MIDDLEWARE =>", post);
+        // console.log("post.postedBy =>", post.postedBy);
+        // console.log("req.auth._id",req.auth._id);
+        
         if(req.auth._id != post.postedBy){
             return res.status(400).send("Unauthorised");
         }
@@ -20,6 +23,6 @@ export const canEditDeletePost = async (req,res, next) =>{
             next();
         }
     } catch (error) {
-        console.log("error while authorise canDeletePost");
+        console.log("error while authorise canDeletePost",error);
     }
 }
