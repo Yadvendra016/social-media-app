@@ -2,6 +2,7 @@ import renderHTML from "react-render-html"; // to render html from react-quill e
 import moment from "moment";
 import { useRouter } from "next/router";
 import { Avatar } from "antd";
+import { imageSource } from "../../functions"; // this is for profile photo show
 import {
   HeartOutlined,
   HeartFilled,
@@ -13,7 +14,7 @@ import {
 import { useContext } from "react";
 import { UserContext } from "../../context";
 
-const PostList = ({ posts, handleDelete }) => {
+const PostList = ({ posts, handleDelete, handleLike, handleUnlike }) => {
   const [state, setState] = useContext(UserContext);
 
   const router = useRouter();
@@ -24,7 +25,9 @@ const PostList = ({ posts, handleDelete }) => {
         posts.map((post) => (
           <div key={post._id} className="card mb-5">
             <div className="card-header">
-              <Avatar size={40}>{post.postedBy.name[0]} </Avatar>
+              {/* Profile Avatar */}
+              {/* <Avatar size={40}>{post.postedBy.name[0]} </Avatar> */}
+              <Avatar size={40} src={imageSource(post.postedBy)} />
               <span className="pt-2 mx-3">{post.postedBy.name}</span>
               <span className="pt-2 mx-3">
                 {moment(post.createdAt).fromNow()}
@@ -45,9 +48,20 @@ const PostList = ({ posts, handleDelete }) => {
                   }}
                 ></div>
               )}
+              {/* like and comment section */}
               <div className="d-flex pt-2">
-                <HeartOutlined className="text-danger pt-2 h5 px-2" />
-                <div className="pt-2 ">3 like</div>
+                {post.like.includes(state.user._id) ? (
+                  <HeartFilled
+                    onClick={() => handleUnlike(post._id)}
+                    className="text-danger pt-2 h5 px-2"
+                  />
+                ) : (
+                  <HeartOutlined
+                    onClick={() => handleLike(post._id)}
+                    className="text-danger pt-2 h5 px-2"
+                  />
+                )}
+                <div className="pt-2 ">{post.like.length} like</div>
                 <CommentOutlined
                   className="text-danger pt-2 h5 px-2"
                   style={{ marginLeft: "2rem" }}

@@ -109,3 +109,33 @@ export const deletePost = async (req, res) => {
     console.log("Error while Detlet post server =>", error);
   }
 };
+
+//like post
+export const likePost = async (req,res) =>{
+  try {
+
+    const post = await Post.findByIdAndUpdate(req.body._id, {
+      $addToSet: {like: req.auth._id}
+    },{new: true});
+
+    res.json(post);
+
+  } catch (error) {
+    console.log("likepost => ",error);
+  }
+}
+
+//unlike post
+export const unlikePost = async (req,res) =>{
+  try {
+
+    const post = await Post.findByIdAndUpdate(req.body._id, {
+      $pull: {like: req.auth._id}
+    },{new: true});
+
+    res.json(post);
+    
+  } catch (error) {
+    console.log("unlikePost",error);
+  }
+}

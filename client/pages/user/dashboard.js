@@ -10,6 +10,7 @@ import PostList from "../../components/cards/PostList";
 import People from "../../components/cards/people";
 import Link from "next/link";
 
+
 const Home = () => {
   const [state, setState] = useContext(UserContext);
   //state
@@ -139,6 +140,29 @@ const Home = () => {
     }
   }
 
+  // Handle Like click(postlist)
+  const handleLike = async (_id) =>{ // _id = postId
+    // console.log("Like this post",_id);
+    try {
+      const {data} = await axios.put('/like-post', {_id});
+      // console.log("liked: ",data);
+      fetchUserPost(); // ones post updated then rerender the post
+    } catch (error) {
+      console.log("handleLIke =>", error);
+    }
+  }
+  //Handle Unlike
+  const handleUnlike = async (_id) =>{
+    // console.log("Unlike this post",_id);
+    try {
+      const {data} = await axios.put('/unlike-post', {_id});
+      console.log("unliked: ",data);
+      fetchUserPost();
+    } catch (error) {
+      console.log("handleLIke =>", error);
+    }
+  }
+
   return (
     <UserRoute>
       <div className="container-fluid">
@@ -161,7 +185,7 @@ const Home = () => {
             <br />
             {/* pre tag to read json data nicely */}
             {/* <pre>{JSON.stringify(post, null, 4)}</pre> */}
-            <PostList posts={posts} handleDelete={handleDelete} />
+            <PostList posts={posts} handleDelete={handleDelete} handleLike={handleLike} handleUnlike={handleUnlike} />
           </div>
 
           {/* Sidebar */}
